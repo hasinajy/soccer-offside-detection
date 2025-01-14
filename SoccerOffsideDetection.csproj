@@ -10,6 +10,9 @@
 
   <ItemGroup>
     <Compile Include="src/**/*.cs" />
+    <Content Include="img\\*.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <PackageReference Include="Emgu.CV" Version="4.10.0.5680" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
   </ItemGroup>
