@@ -10,7 +10,7 @@ namespace Main
             try
             {
                 // Initialize services
-                var imagePath = "img/test-offside.jpg";  // Replace with your image path
+                var imagePath = "img/blue-offside.jpg";  // Replace with your image path
                 var imageProcessor = new ImageProcessor(imagePath);
                 var offsideAnalyzer = new OffsideAnalyzer();
 
@@ -30,7 +30,7 @@ namespace Main
 
                 // Step 4: Save annotated image
                 Console.WriteLine("Saving annotated image...");
-                imageProcessor.SaveAnnotatedImage("img/output-offside.jpg", players, ballPosition);
+                imageProcessor.SaveAnnotatedImage("img/output-blue-offside.jpg", players, ballPosition);
 
                 Console.WriteLine("Processing complete! Check output.jpg for results.");
             }
