@@ -10,9 +10,9 @@ namespace Services
     public class ImageProcessor
     {
         private readonly Mat _originalImage;
-        private readonly MCvScalar _teamAColor = new(0, 0, 255);    // Red
-        private readonly MCvScalar _teamBColor = new(255, 0, 0);    // Blue
-        private readonly MCvScalar _ballColor = new(0, 0, 0);       // Black
+        private readonly MCvScalar _teamAColor = new MCvScalar(0, 0, 255);    // Red visualization color
+        private readonly MCvScalar _teamBColor = new MCvScalar(255, 0, 0);    // Blue visualization color
+        private readonly MCvScalar _ballColor = new MCvScalar(0, 0, 0);       // Black
 
         public ImageProcessor(string imagePath)
         {
@@ -29,16 +29,27 @@ namespace Services
             using var hsvImage = new Mat();
             CvInvoke.CvtColor(_originalImage, hsvImage, ColorConversion.Bgr2Hsv);
 
-            // Detect Team A (Red)
+            // Detect Team A (Red #FF002A)
             using var teamAMask = new Mat();
-            var lowerRed = new ScalarArray(new MCvScalar(160, 100, 100));
-            var upperRed = new ScalarArray(new MCvScalar(180, 255, 255));
-            CvInvoke.InRange(hsvImage, lowerRed, upperRed, teamAMask);
+            // Range for red color (considering the wrap-around in HSV)
+            using var teamAMaskLower = new Mat();
+            using var teamAMaskUpper = new Mat();
 
-            // Detect Team B (Blue)
+            // Red can wrap around the HSV cylinder, so we need two ranges
+            var lowerRed1 = new ScalarArray(new MCvScalar(0, 200, 200));    // Start of red spectrum
+            var upperRed1 = new ScalarArray(new MCvScalar(10, 255, 255));   // End of first red range
+            var lowerRed2 = new ScalarArray(new MCvScalar(165, 200, 200));  // Start of second red range
+            var upperRed2 = new ScalarArray(new MCvScalar(180, 255, 255));  // End of red spectrum
+
+            // Create two masks for red and combine them
+            CvInvoke.InRange(hsvImage, lowerRed1, upperRed1, teamAMaskLower);
+            CvInvoke.InRange(hsvImage, lowerRed2, upperRed2, teamAMaskUpper);
+            CvInvoke.Add(teamAMaskLower, teamAMaskUpper, teamAMask);
+
+            // Detect Team B (Blue #00BBFF)
             using var teamBMask = new Mat();
-            var lowerBlue = new ScalarArray(new MCvScalar(100, 100, 100));
-            var upperBlue = new ScalarArray(new MCvScalar(130, 255, 255));
+            var lowerBlue = new ScalarArray(new MCvScalar(90, 200, 200));   // Start of blue range
+            var upperBlue = new ScalarArray(new MCvScalar(105, 255, 255));  // End of blue range
             CvInvoke.InRange(hsvImage, lowerBlue, upperBlue, teamBMask);
 
             // Find contours for both teams
@@ -53,6 +64,11 @@ namespace Services
             using var hierarchy = new Mat();
             using var contours = new VectorOfVectorOfPoint();
 
+            // Apply some morphological operations to clean up the mask
+            var kernel = CvInvoke.GetStructuringElement(ElementShape.Rectangle, new Size(3, 3), new Point(-1, -1));
+            CvInvoke.MorphologyEx(mask, mask, MorphOp.Open, kernel, new Point(-1, -1), 1, BorderType.Default, new MCvScalar());
+            CvInvoke.MorphologyEx(mask, mask, MorphOp.Close, kernel, new Point(-1, -1), 1, BorderType.Default, new MCvScalar());
+
             CvInvoke.FindContours(
                 mask,
                 contours,
@@ -62,6 +78,10 @@ namespace Services
 
             for (int i = 0; i < contours.Size; i++)
             {
+                // Filter small contours that might be noise
+                double area = CvInvoke.ContourArea(contours[i]);
+                if (area < 100) continue; // Adjust this threshold based on your image size
+
                 var moments = CvInvoke.Moments(contours[i]);
                 var centerX = (int)(moments.M10 / moments.M00);
                 var centerY = (int)(moments.M01 / moments.M00);
