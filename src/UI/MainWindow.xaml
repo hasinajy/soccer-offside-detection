@@ -1,0 +1,53 @@
+<Window x:Class="UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Offside Detection"
+        Height="600"
+        Width="1000">
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Column - Input -->
+        <StackPanel Grid.Column="0"
+                    Margin="5">
+            <Button x:Name="ImportButton"
+                    Content="Import Image"
+                    Height="30"
+                    Margin="0,0,0,10"
+                    Click="ImportButton_Click"/>
+
+            <Border BorderBrush="Gray"
+                    BorderThickness="1"
+                    Margin="0,0,0,10">
+                <Image x:Name="InputImage"
+                       Stretch="Uniform"
+                       Height="450"/>
+            </Border>
+
+            <Button x:Name="ProcessButton"
+                    Content="Process Image"
+                    Height="30"
+                    IsEnabled="False"
+                    Click="ProcessButton_Click"/>
+        </StackPanel>
+
+        <!-- Right Column - Output -->
+        <StackPanel Grid.Column="1"
+                    Margin="5">
+            <TextBlock Text="Output"
+                       FontWeight="Bold"
+                       Height="30"
+                       Margin="0,0,0,10"/>
+
+            <Border BorderBrush="Gray"
+                    BorderThickness="1">
+                <Image x:Name="OutputImage"
+                       Stretch="Uniform"
+                       Height="450"/>
+            </Border>
+        </StackPanel>
+    </Grid>
+</Window>
