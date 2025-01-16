@@ -55,12 +55,12 @@ namespace Services
             // Annotate attacking players (optional logic for highlighting them based on ball holder position)
             foreach (var player in players.Where(p => p.Team == ballHolder.Team))
             {
-                if (isAttackingDownward && player.Position.Y > ballHolder.Position.Y)
+                if (isAttackingDownward && player.Position.Y > ballPosition.Y)
                 {
                     // Attacking downward
                     player.IsAnnotated = true;
                 }
-                else if (!isAttackingDownward && player.Position.Y < ballHolder.Position.Y)
+                else if (!isAttackingDownward && player.Position.Y < ballPosition.Y)
                 {
                     // Attacking upward
                     player.IsAnnotated = true;
