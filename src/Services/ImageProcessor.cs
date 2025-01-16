@@ -124,7 +124,7 @@ namespace Services
             var annotatedImage = _originalImage.Clone();
 
             // Draw players
-            foreach (var player in players)
+            foreach (var player in players.Where(p => p.IsAnnotated))
             {
                 var color = player.Team == TeamType.TeamA ? _teamAColor : _teamBColor;
                 CvInvoke.Circle(annotatedImage, player.Position, 10, color, -1);
