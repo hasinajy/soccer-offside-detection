@@ -62,7 +62,7 @@ namespace Services
             return players;
         }
 
-        private void AddPlayersFromMask(Mat mask, TeamType team, List<Player> players)
+        private static void AddPlayersFromMask(Mat mask, TeamType team, List<Player> players)
         {
             using var hierarchy = new Mat();
             using var contours = new VectorOfVectorOfPoint();
