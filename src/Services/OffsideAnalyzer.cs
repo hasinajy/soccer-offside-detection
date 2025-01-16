@@ -11,15 +11,26 @@ namespace Services
             var ballHolder = FindBallHolder(players, ballPosition);
             if (ballHolder == null) return;
 
+            // Detect attacking direction
+            // Assume that the team attacking downward has a greater average Y-coordinate for their players
+            var attackingDirectionY = players
+                .Where(p => p.Team == ballHolder.Team)
+                .Select(p => p.Position.Y)
+                .Average();
+            var defendingDirectionY = players
+                .Where(p => p.Team != ballHolder.Team)
+                .Select(p => p.Position.Y)
+                .Average();
+            var isAttackingDownward = attackingDirectionY < defendingDirectionY;
+
             // Find last defender (excluding goalkeeper)
             var defenders = players.Where(p => p.Team != ballHolder.Team).ToList();
             if (!defenders.Any()) return;
 
             // Sort defenders based on attacking direction
-            var isAttackingDownward = ballHolder.Team == TeamType.TeamA; // Red team attacks downward
-            defenders = !isAttackingDownward
-                ? defenders.OrderBy(p => p.Position.Y).Skip(1).ToList()    // For red team (top to bottom)
-                : defenders.OrderByDescending(p => p.Position.Y).Skip(1).ToList(); // For blue team (bottom to top)
+            defenders = isAttackingDownward
+                ? defenders.OrderByDescending(p => p.Position.Y).Skip(1).ToList() // Attacking downward: bottom to top
+                : defenders.OrderBy(p => p.Position.Y).Skip(1).ToList();          // Attacking upward: top to bottom
 
             if (!defenders.Any()) return;
 
@@ -31,30 +42,32 @@ namespace Services
             {
                 if (isAttackingDownward)
                 {
-                    // Red team (top) attacking downward: offside if player is BELOW last defender
+                    // Attacking downward: offside if player is BELOW last defender
                     player.IsOffside = player.Position.Y > lastDefenderY;
                 }
                 else
                 {
-                    // Blue team (bottom) attacking upward: offside if player is ABOVE last defender
+                    // Attacking upward: offside if player is ABOVE last defender
                     player.IsOffside = player.Position.Y < lastDefenderY;
                 }
             }
 
+            // Annotate attacking players (optional logic for highlighting them based on ball holder position)
             foreach (var player in players.Where(p => p.Team == ballHolder.Team))
             {
                 if (isAttackingDownward && player.Position.Y > ballHolder.Position.Y)
                 {
-                    // Red team (top) attacking downward
+                    // Attacking downward
                     player.IsAnnotated = true;
                 }
                 else if (!isAttackingDownward && player.Position.Y < ballHolder.Position.Y)
                 {
-                    // Blue team (bottom) attacking upward
+                    // Attacking upward
                     player.IsAnnotated = true;
                 }
             }
         }
+
 
         private Player FindBallHolder(List<Player> players, Point ballPosition)
         {
