@@ -40,6 +40,20 @@ namespace Services
                     player.IsOffside = player.Position.Y < lastDefenderY;
                 }
             }
+
+            foreach (var player in players.Where(p => p.Team == ballHolder.Team))
+            {
+                if (isAttackingDownward && player.Position.Y > ballHolder.Position.Y)
+                {
+                    // Red team (top) attacking downward
+                    player.IsAnnotated = true;
+                }
+                else if (!isAttackingDownward && player.Position.Y < ballHolder.Position.Y)
+                {
+                    // Blue team (bottom) attacking upward
+                    player.IsAnnotated = true;
+                }
+            }
         }
 
         private Player FindBallHolder(List<Player> players, Point ballPosition)
