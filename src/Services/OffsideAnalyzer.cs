@@ -69,7 +69,7 @@ namespace Services
         }
 
 
-        private Player FindBallHolder(List<Player> players, Point ballPosition)
+        private static Player FindBallHolder(List<Player> players, Point ballPosition)
         {
             return players.OrderBy(p =>
                 Math.Sqrt(
