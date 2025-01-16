@@ -137,9 +137,25 @@ namespace Services
                     FontFace.HersheySimplex, 0.5, textColor, 2);
             }
 
+            // Draw arrows from ball to players who are annotated and not offside
+            foreach (var player in players.Where(p => p.IsAnnotated && !p.IsOffside))
+            {
+                CvInvoke.ArrowedLine(
+                    annotatedImage,                    // The image to draw on
+                    ballPosition,                      // Starting point (ball position)
+                    player.Position,                   // Ending point (player position)
+                    new MCvScalar(255, 0, 0),          // Arrow color (blue in BGR format)
+                    2,                                 // Thickness of the arrow
+                    Emgu.CV.CvEnum.LineType.AntiAlias, // Smooth anti-aliased line
+                    0,                                 // No fractional shift
+                    0.1                                // Arrowhead size relative to line length
+                );
+            }
+
             // Draw ball
             CvInvoke.Circle(annotatedImage, ballPosition, 5, _ballColor, -1);
 
+            // Save the annotated image
             CvInvoke.Imwrite(outputPath, annotatedImage);
         }
     }
