@@ -31,15 +31,17 @@ namespace Services
 
             // Detect Team A (Red #FF002A)
             using var teamAMask = new Mat();
-            // Range for red color (considering the wrap-around in HSV)
+            // Widened range for red color (considering the wrap-around in HSV)
             using var teamAMaskLower = new Mat();
             using var teamAMaskUpper = new Mat();
 
-            // Red can wrap around the HSV cylinder, so we need two ranges
-            var lowerRed1 = new ScalarArray(new MCvScalar(0, 200, 200));    // Start of red spectrum
-            var upperRed1 = new ScalarArray(new MCvScalar(10, 255, 255));   // End of first red range
-            var lowerRed2 = new ScalarArray(new MCvScalar(165, 200, 200));  // Start of second red range
-            var upperRed2 = new ScalarArray(new MCvScalar(180, 255, 255));  // End of red spectrum
+            // First red range (near 0 hue)
+            var lowerRed1 = new ScalarArray(new MCvScalar(0, 50, 50));   // Lower saturation and value
+            var upperRed1 = new ScalarArray(new MCvScalar(10, 255, 255)); // End of first red range
+
+            // Second red range (near 180 hue)
+            var lowerRed2 = new ScalarArray(new MCvScalar(170, 50, 50));  // Lower saturation and value
+            var upperRed2 = new ScalarArray(new MCvScalar(180, 255, 255)); // End of red spectrum
 
             // Create two masks for red and combine them
             CvInvoke.InRange(hsvImage, lowerRed1, upperRed1, teamAMaskLower);
@@ -48,8 +50,9 @@ namespace Services
 
             // Detect Team B (Blue #00BBFF)
             using var teamBMask = new Mat();
-            var lowerBlue = new ScalarArray(new MCvScalar(90, 200, 200));   // Start of blue range
-            var upperBlue = new ScalarArray(new MCvScalar(105, 255, 255));  // End of blue range
+            // Widened range for blue detection
+            var lowerBlue = new ScalarArray(new MCvScalar(85, 50, 50));   // Start of blue range (lower saturation and value)
+            var upperBlue = new ScalarArray(new MCvScalar(125, 255, 255)); // End of blue range (just before green hues)
             CvInvoke.InRange(hsvImage, lowerBlue, upperBlue, teamBMask);
 
             // Find contours for both teams
@@ -80,7 +83,7 @@ namespace Services
             {
                 // Filter small contours that might be noise
                 double area = CvInvoke.ContourArea(contours[i]);
-                if (area < 100) continue; // Adjust this threshold based on your image size
+                if (area < 1) continue; // Adjust this threshold based on your image size
 
                 var moments = CvInvoke.Moments(contours[i]);
                 var centerX = (int)(moments.M10 / moments.M00);
