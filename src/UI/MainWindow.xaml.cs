@@ -7,13 +7,13 @@ using Services;
 
 namespace UI
 {
-    public partial class MainWindow : Window
+    public partial class OffsideDetectorWindow : Window
     {
-        private string _currentImagePath;
-        private ImageProcessor _imageProcessor;
-        private OffsideAnalyzer _offsideAnalyzer;
+        private string? _currentImagePath;
+        private ImageProcessor? _imageProcessor;
+        private readonly OffsideAnalyzer _offsideAnalyzer;
 
-        public MainWindow()
+        public OffsideDetectorWindow()
         {
             InitializeComponent();
             _offsideAnalyzer = new OffsideAnalyzer();
