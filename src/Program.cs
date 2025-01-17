@@ -1,10 +1,10 @@
-﻿using System;
-using UI;
+﻿using UI;
 
 namespace Main
 {
     public class Program
     {
+        private Program() { }
         [STAThread]
         public static void Main()
         {
