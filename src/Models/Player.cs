@@ -2,21 +2,12 @@ using System.Drawing;
 
 namespace Models
 {
-    public class Player
+    public class Player(Point position, TeamType team)
     {
-        public Point Position { get; set; }
-        public TeamType Team { get; set; }
-        public bool HasBall { get; set; }
-        public bool IsOffside { get; set; }
-        public bool IsAnnotated { get; set; }
-
-        public Player(Point position, TeamType team)
-        {
-            Position = position;
-            Team = team;
-            HasBall = false;
-            IsOffside = false;
-            IsAnnotated = false;
-        }
+        public Point Position { get; set; } = position;
+        public TeamType Team { get; set; } = team;
+        public bool HasBall { get; set; } = false;
+        public bool IsOffside { get; set; } = false;
+        public bool IsAnnotated { get; set; } = false;
     }
 }
