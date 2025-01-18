@@ -73,6 +73,7 @@ namespace Services
         public Point DetectBall()
         {
             using var ballMask = new Mat();
+            // Detect objects within the specified color range
             CvInvoke.InRange(
                 _originalImage,
                 new ScalarArray(new MCvScalar(0, 0, 0)),
@@ -82,9 +83,44 @@ namespace Services
 
             using var contours = FindContours(ballMask);
             if (contours.Size == 0)
-                throw new InvalidOperationException("Ball not found in image");
+                throw new InvalidOperationException("No objects found matching the color criteria");
 
-            return CalculateCentroid(contours[0]);
+            // Find the most circular contour
+            var mostCircularContour = FindMostCircularContour(contours) ?? throw new InvalidOperationException("No circular objects found matching the criteria");
+            return CalculateCentroid(mostCircularContour);
+        }
+
+        private static VectorOfPoint? FindMostCircularContour(VectorOfVectorOfPoint contours)
+        {
+            double bestCircularity = 0;
+            VectorOfPoint? mostCircularContour = null;
+            double minCircularity = 0.7; // Adjust this threshold as needed (1.0 is perfect circle)
+
+            for (int i = 0; i < contours.Size; i++)
+            {
+                var contour = contours[i];
+                double circularity = CalculateCircularity(contour);
+
+                if (circularity > minCircularity && circularity > bestCircularity)
+                {
+                    bestCircularity = circularity;
+                    mostCircularContour = contour;
+                }
+            }
+
+            return mostCircularContour;
+        }
+
+        private static double CalculateCircularity(VectorOfPoint contour)
+        {
+            double area = CvInvoke.ContourArea(contour);
+            double perimeter = CvInvoke.ArcLength(contour, true);
+
+            // Circularity formula: 4π * area / (perimeter^2)
+            // Perfect circle has circularity of 1.0
+            if (perimeter > 0)
+                return (4 * Math.PI * area) / (perimeter * perimeter);
+            return 0;
         }
 
         public void SaveAnnotatedImage(string outputPath, List<Player> players, Point ballPosition)
