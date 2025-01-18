@@ -12,7 +12,7 @@ namespace Services
             Downward
         }
 
-        public void AnalyzeOffside(List<Player> players, Point ballPosition)
+        public static void AnalyzeOffside(List<Player> players, Point ballPosition)
         {
             var ballHolder = FindBallHolder(players, ballPosition);
             if (ballHolder == null) return;

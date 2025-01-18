@@ -11,12 +11,10 @@ namespace UI
     {
         private string? _currentImagePath;
         private ImageProcessor? _imageProcessor;
-        private readonly OffsideAnalyzer _offsideAnalyzer;
 
         public OffsideDetectorWindow()
         {
             InitializeComponent();
-            _offsideAnalyzer = new OffsideAnalyzer();
         }
 
         private void ImportButton_Click(object sender, RoutedEventArgs e)
@@ -56,7 +54,7 @@ namespace UI
                     _imageProcessor = new ImageProcessor(_currentImagePath);
                     var players = _imageProcessor.DetectPlayers();
                     var ballPosition = _imageProcessor.DetectBall();
-                    _offsideAnalyzer.AnalyzeOffside(players, ballPosition);
+                    OffsideAnalyzer.AnalyzeOffside(players, ballPosition);
 
                     // Save and display the result
                     string outputPath = Path.Combine(
