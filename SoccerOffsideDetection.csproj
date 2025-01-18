@@ -10,8 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.WindowsDesktop.App.WPF" />
-
     <Compile Include="src/**/*.cs" />
     <Content Include="img/*.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
