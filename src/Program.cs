@@ -9,7 +9,7 @@ namespace Main
         public static void Main()
         {
             var application = new System.Windows.Application();
-            var window = new OffsideDetectorWindow();
+            var window = new ScoreTrackerWindow();
             application.Run(window);
         }
     }

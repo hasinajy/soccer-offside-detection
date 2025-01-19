@@ -16,6 +16,7 @@ namespace Services
         {
             var ballHolder = FindBallHolder(players, ballPosition);
             if (ballHolder == null) return;
+            ballHolder.HasBall = true;
 
             var attackingTeam = players.Where(p => p.Team == ballHolder.Team).ToList();
             var defendingTeam = players.Where(p => p.Team != ballHolder.Team).ToList();
@@ -68,7 +69,7 @@ namespace Services
             Player ballHolder,
             AttackDirection direction)
         {
-            foreach (var player in attackingTeam.Where(p => p != ballHolder))
+            foreach (var player in attackingTeam.Where(p => p.Team == ballHolder.Team))
             {
                 player.IsOffside = direction == AttackDirection.Downward
                     ? player.Position.Y > lastDefender.Position.Y  // Attacking downward
