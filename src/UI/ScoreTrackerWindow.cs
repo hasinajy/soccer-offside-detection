@@ -1,6 +1,7 @@
 using Microsoft.Win32;
 using Models;
 using Services;
+using Services.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows;
@@ -97,6 +98,17 @@ namespace UI
                 var ballHolder = beforePlayers.FirstOrDefault(p => p.HasBall);
                 if (ballHolder == null) return;
 
+                // Create configuration
+                var config = new GoalHistoryConfiguration
+                {
+                    Format = StorageFormat.Json,
+                    LogDirectory = "log",
+                    FileName = "goal-history"
+                };
+
+                // Initialize tracker
+                var tracker = new GoalHistoryTracker(config);
+
                 // Check if ball holder is offside
                 if (ballHolder.IsOffside)
                 {
@@ -119,13 +131,13 @@ namespace UI
                     {
                         int currentScore = int.Parse(ScoreTeamA.Text);
                         ScoreTeamA.Text = (currentScore + 1).ToString();
-                        GoalHistoryTracker.UpdateHistory(TeamType.TeamA, afterBallPosition);
+                        tracker.UpdateHistory(TeamType.TeamA, afterBallPosition);
                     }
                     else
                     {
                         int currentScore = int.Parse(ScoreTeamB.Text);
                         ScoreTeamB.Text = (currentScore + 1).ToString();
-                        GoalHistoryTracker.UpdateHistory(TeamType.TeamB, afterBallPosition);
+                        tracker.UpdateHistory(TeamType.TeamB, afterBallPosition);
                     }
 
                     MessageBox.Show($"Goal scored by {ballHolder.Team}!",
@@ -163,7 +175,7 @@ namespace UI
             }
         }
 
-        private static (bool isGoal, TeamType? scoringTeam) IsPointInGoal(System.Drawing.Point ballPosition, List<Goal> goals, Player ballHolder)
+        private static (bool isGoal, TeamType? scoringTeam) IsPointInGoal(System.Drawing.Point ballPosition, List<GoalField> goals, Player ballHolder)
         {
             foreach (var goal in goals)
             {

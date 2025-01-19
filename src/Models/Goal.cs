@@ -2,13 +2,27 @@ using System.Drawing;
 
 namespace Models
 {
-    public class Goal(Rectangle bounds, TeamType team)
+    public class Goal
     {
-        public Rectangle Bounds { get; } = bounds;
-        public TeamType Team { get; } = team;
-        public Point Center => new(
-            Bounds.X + Bounds.Width / 2,
-            Bounds.Y + Bounds.Height / 2
-        );
+        public DateTime? Timestamp { get; set; }
+        public TeamType? ScoringTeam { get; set; }
+        public Position? BallPosition { get; set; }
+
+        // Add parameterless constructor for JSON deserialization
+        public Goal() { }
+
+        // Keep the parameterized constructor for normal instantiation
+        public Goal(TeamType scoringTeam, Point ballPosition, DateTime timestamp)
+        {
+            Timestamp = timestamp;
+            ScoringTeam = scoringTeam;
+            BallPosition = new Position { X = ballPosition.X, Y = ballPosition.Y };
+        }
+    }
+
+    public class Position
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
     }
 }
