@@ -20,7 +20,7 @@ namespace Services
 
         private GoalDetector() { }
 
-        public static List<Goal> DetectGoals(string imagePath, List<Player> players)
+        public static List<GoalField> DetectGoals(string imagePath, List<Player> players)
         {
             using var image = new Mat(imagePath, ImreadModes.Color);
             using var grayImage = new Mat();
@@ -60,7 +60,7 @@ namespace Services
                 RetrType.External,
                 ChainApproxMethod.ChainApproxSimple);
 
-            var detectedGoals = new List<Goal>();
+            var detectedGoals = new List<GoalField>();
 
             for (int i = 0; i < contours.Size; i++)
             {
@@ -101,7 +101,7 @@ namespace Services
                                 ? topPlayer.Team
                                 : bottomPlayer.Team;
 
-                            var goal = new Goal(boundingRect, team);
+                            var goal = new GoalField(boundingRect, team);
                             detectedGoals.Add(goal);
 
                             // Draw final detection in green with team indicator

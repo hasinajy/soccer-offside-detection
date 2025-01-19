@@ -2,7 +2,7 @@ using System.Drawing;
 
 namespace Models
 {
-    public class Goal(Rectangle bounds, TeamType team)
+    public class GoalField(Rectangle bounds, TeamType team)
     {
         public Rectangle Bounds { get; } = bounds;
         public TeamType Team { get; } = team;

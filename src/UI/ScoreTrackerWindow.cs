@@ -163,7 +163,7 @@ namespace UI
             }
         }
 
-        private static (bool isGoal, TeamType? scoringTeam) IsPointInGoal(System.Drawing.Point ballPosition, List<Goal> goals, Player ballHolder)
+        private static (bool isGoal, TeamType? scoringTeam) IsPointInGoal(System.Drawing.Point ballPosition, List<GoalField> goals, Player ballHolder)
         {
             foreach (var goal in goals)
             {
