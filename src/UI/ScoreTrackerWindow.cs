@@ -100,7 +100,7 @@ namespace UI
                 // Check if ball holder is offside
                 if (ballHolder.IsOffside)
                 {
-                    UpdateHistory("Goal missed (offside)");
+                    // TODO: Log offside event
                     MessageBox.Show("Offside position detected - No goal awarded",
                                   "Offside",
                                   MessageBoxButton.OK,
@@ -119,13 +119,13 @@ namespace UI
                     {
                         int currentScore = int.Parse(ScoreTeamA.Text);
                         ScoreTeamA.Text = (currentScore + 1).ToString();
-                        UpdateHistory("Goal scored by Team A");
+                        GoalHistoryTracker.UpdateHistory(TeamType.TeamA, afterBallPosition);
                     }
                     else
                     {
                         int currentScore = int.Parse(ScoreTeamB.Text);
                         ScoreTeamB.Text = (currentScore + 1).ToString();
-                        UpdateHistory("Goal scored by Team B");
+                        GoalHistoryTracker.UpdateHistory(TeamType.TeamB, afterBallPosition);
                     }
 
                     MessageBox.Show($"Goal scored by {ballHolder.Team}!",
@@ -135,7 +135,7 @@ namespace UI
                 }
                 else
                 {
-                    UpdateHistory("Goal missed (outside)");
+                    // TODO: Log missed shot event
                     MessageBox.Show("Shot missed - Ball not in goal",
                                   "Miss",
                                   MessageBoxButton.OK,
@@ -190,13 +190,6 @@ namespace UI
             }
 
             return (false, null);
-        }
-
-        private static void UpdateHistory(string message)
-        {
-            // Implement history tracking (e.g., add to a ListBox or save to a file)
-            // You'll need to add a control to the XAML to display this
-            Debug.WriteLine($"History: {message}");
         }
 
         private static void SaveImageToFile(BitmapSource bitmapSource, string filePath)
