@@ -2,6 +2,7 @@
 bin/
 obj/
 img/
+log/
 
 # User-specific files
 *.user
