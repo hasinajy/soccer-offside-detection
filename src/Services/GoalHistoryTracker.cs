@@ -11,6 +11,7 @@ namespace Services
     {
         private readonly GoalHistoryConfiguration _config;
         private readonly string _filePath;
+        private readonly JsonSerializerOptions _jsonOptions;
 
         public GoalHistoryTracker(GoalHistoryConfiguration config)
         {
@@ -19,6 +20,11 @@ namespace Services
                 config.LogDirectory,
                 $"{config.FileName}.{GetFileExtension()}"
             );
+            _jsonOptions = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNameCaseInsensitive = true
+            };
         }
 
         private string GetFileExtension() => _config.Format == StorageFormat.Json ? "json" : "log";
@@ -59,7 +65,7 @@ namespace Services
             if (File.Exists(_filePath))
             {
                 var jsonContent = File.ReadAllText(_filePath);
-                goals = JsonSerializer.Deserialize<List<Goal>>(jsonContent) ?? new List<Goal>();
+                goals = JsonSerializer.Deserialize<List<Goal>>(jsonContent, _jsonOptions) ?? new List<Goal>();
             }
             else
             {
@@ -67,10 +73,7 @@ namespace Services
             }
 
             goals.Add(goal);
-            var jsonString = JsonSerializer.Serialize(goals, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
+            var jsonString = JsonSerializer.Serialize(goals, _jsonOptions);
 
             File.WriteAllText(_filePath, jsonString);
         }
@@ -93,7 +96,7 @@ namespace Services
                 if (_config.Format == StorageFormat.Json)
                 {
                     var jsonContent = File.ReadAllText(_filePath);
-                    return JsonSerializer.Deserialize<List<Goal>>(jsonContent) ?? new List<Goal>();
+                    return JsonSerializer.Deserialize<List<Goal>>(jsonContent, _jsonOptions) ?? new List<Goal>();
                 }
                 else
                 {

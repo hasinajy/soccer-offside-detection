@@ -4,10 +4,14 @@ namespace Models
 {
     public class Goal
     {
-        public DateTime Timestamp { get; set; }
-        public TeamType ScoringTeam { get; set; }
-        public Position BallPosition { get; set; }
+        public DateTime? Timestamp { get; set; }
+        public TeamType? ScoringTeam { get; set; }
+        public Position? BallPosition { get; set; }
 
+        // Add parameterless constructor for JSON deserialization
+        public Goal() { }
+
+        // Keep the parameterized constructor for normal instantiation
         public Goal(TeamType scoringTeam, Point ballPosition, DateTime timestamp)
         {
             Timestamp = timestamp;
