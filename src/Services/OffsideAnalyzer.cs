@@ -69,7 +69,7 @@ namespace Services
             Player ballHolder,
             AttackDirection direction)
         {
-            foreach (var player in attackingTeam.Where(p => p != ballHolder))
+            foreach (var player in attackingTeam.Where(p => p.Team == ballHolder.Team))
             {
                 player.IsOffside = direction == AttackDirection.Downward
                     ? player.Position.Y > lastDefender.Position.Y  // Attacking downward
