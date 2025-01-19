@@ -16,6 +16,7 @@ namespace Services
         {
             var ballHolder = FindBallHolder(players, ballPosition);
             if (ballHolder == null) return;
+            ballHolder.HasBall = true;
 
             var attackingTeam = players.Where(p => p.Team == ballHolder.Team).ToList();
             var defendingTeam = players.Where(p => p.Team != ballHolder.Team).ToList();
