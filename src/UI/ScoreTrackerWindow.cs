@@ -13,6 +13,9 @@ namespace UI
     {
         private BitmapImage? beforeImageSource;
         private BitmapImage? afterImageSource;
+        // Add these fields at the class level
+        private int teamABlocks = 0;
+        private int teamBBlocks = 0;
 
         public ScoreTrackerWindow()
         {
@@ -120,11 +123,27 @@ namespace UI
                     return;
                 }
 
-                // Check for goal in 'after' image
                 var goalFields = GoalDetector.DetectGoals(afterTempPath, afterPlayers);
-                var ballStatus = IsPointInGoal(afterBallPosition, goalFields, ballHolder);
+                var goalAttempt = IsPointInGoal(afterBallPosition, goalFields, ballHolder, afterPlayers);
 
-                if (ballStatus.isGoal)
+                if (goalAttempt.IsBlocked)
+                {
+                    // Determine which team made the block (opposite of ball holder)
+                    if (ballHolder.Team == TeamType.TeamA)
+                    {
+                        teamBBlocks++;
+                    }
+                    else
+                    {
+                        teamABlocks++;
+                    }
+
+                    MessageBox.Show($"Team A {teamABlocks} - {teamBBlocks} Team B",
+                                  "Blocked",
+                                  MessageBoxButton.OK,
+                                  MessageBoxImage.Information);
+                }
+                else if (goalAttempt.IsGoal)
                 {
                     // Award point to the attacking team
                     if (ballHolder.Team == TeamType.TeamA)
@@ -175,7 +194,13 @@ namespace UI
             }
         }
 
-        private static (bool isGoal, TeamType? scoringTeam) IsPointInGoal(System.Drawing.Point ballPosition, List<GoalField> goals, Player ballHolder)
+        public record GoalAttemptResult(bool IsGoal, bool IsBlocked, TeamType? ScoringTeam);
+
+        private static GoalAttemptResult IsPointInGoal(
+            System.Drawing.Point ballPosition,
+            List<GoalField> goals,
+            Player ballHolder,
+            List<Player> players)
         {
             foreach (var goal in goals)
             {
@@ -189,19 +214,67 @@ namespace UI
 
                 if (expandedBounds.Contains(ballPosition))
                 {
-                    // Only count it as a goal if:
-                    // 1. The ball is in a goal
-                    // 2. The ball holder's team is different from the goal's team
+                    // Check if this is the opposing team's goal
                     if (ballHolder.Team != goal.Team)
                     {
-                        return (true, ballHolder.Team);
+                        // Check for goalkeeper block
+                        if (IsBlockedByGoalkeeper(ballPosition, goal.Team, players))
+                        {
+                            return new GoalAttemptResult(false, true, null);
+                        }
+                        return new GoalAttemptResult(true, false, ballHolder.Team);
                     }
                     // Ball is in own team's goal - not a valid goal
-                    return (false, null);
+                    return new GoalAttemptResult(false, false, null);
                 }
             }
 
-            return (false, null);
+            return new GoalAttemptResult(false, false, null);
+        }
+
+        private static bool IsBlockedByGoalkeeper(System.Drawing.Point ballPosition, TeamType defendingTeam, List<Player> players)
+        {
+            var goalkeeper = FindGoalkeeper(defendingTeam, players);
+            if (goalkeeper == null) return false;
+
+            // Define goalkeeper's reach radius (adjust as needed)
+            const int goalkeeperReachRadius = 30;
+
+            // Calculate distance between ball and goalkeeper
+            double distance = CalculateDistance(ballPosition, goalkeeper.Position);
+
+            // First check if the goalkeeper is within reach radius
+            if (distance > (goalkeeperReachRadius + 15)) return false;
+
+            // Check if the ball is in front of the goalkeeper based on team position
+            bool isBallInFront = defendingTeam == TeamType.TeamA
+                ? (ballPosition.Y > goalkeeper.Position.Y && ballPosition.X > (goalkeeper.Position.X - 15) && ballPosition.X < (goalkeeper.Position.X + 15))  // For Team A (top), ball must be below goalkeeper
+                : (ballPosition.Y < goalkeeper.Position.Y && ballPosition.X > (goalkeeper.Position.X - 15) && ballPosition.X < (goalkeeper.Position.X + 15)); // For Team B (bottom), ball must be above goalkeeper
+
+            return isBallInFront;
+        }
+
+        private static Player? FindGoalkeeper(TeamType team, List<Player> players)
+        {
+            // Get all players from the defending team
+            var teamPlayers = players.Where(p => p.Team == team).ToList();
+            if (!teamPlayers.Any()) return null;
+
+            // Order players by Y position
+            var orderedPlayers = teamPlayers.OrderBy(p => p.Position.Y).ToList();
+
+            // If this is Team A (top team), return the player with lowest Y (top of the field)
+            // If this is Team B (bottom team), return the player with highest Y (bottom of the field)
+            return team == TeamType.TeamA
+                ? orderedPlayers.FirstOrDefault()    // Top goalkeeper
+                : orderedPlayers.LastOrDefault();  // Bottom goalkeeper
+        }
+
+        private static double CalculateDistance(System.Drawing.Point p1, System.Drawing.Point p2)
+        {
+            int dx = p1.X - p2.X;
+            int dy = p1.Y - p2.Y;
+            return Math.Sqrt(dx * dx + dy * dy);
         }
 
         private static void SaveImageToFile(BitmapSource bitmapSource, string filePath)
