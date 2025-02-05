@@ -1,4 +1,16 @@
-﻿// See https://aka.ms/new-console-template for more information
-using System;
+﻿using UI;
 
-Console.WriteLine("Hello, World!");
+namespace Main
+{
+    public class Program
+    {
+        private Program() { }
+        [STAThread]
+        public static void Main()
+        {
+            var application = new System.Windows.Application();
+            var window = new ScoreTrackerWindow();
+            application.Run(window);
+        }
+    }
+}
